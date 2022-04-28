@@ -3,11 +3,15 @@ from random import randrange
 class SecretNumber():
     def __init__(self):
         self.openning_game()
-        self.secret_number = self.generate_number()
+        self._secret_number = self.generate_number()
         self.attempts = self.user_attempts()
         self.guess = self.user_guess()
         self.winner()
         self.game_over()
+
+    @property
+    def secret_number(self):
+        return self._secret_number
 
     def openning_game(self):
         open = print("***********************************************************"
@@ -25,7 +29,7 @@ class SecretNumber():
 
             self.attempts -= 1
 
-            if self.secret_number == self.guess:
+            if self.guess == self.secret_number:
                 print("Parabéns, Você realmente é bom :)")
                 break
 
@@ -37,18 +41,18 @@ class SecretNumber():
 
             self.guess = self.user_guess()
 
-    def game_over(self):
-        if self.attempts <= 1:
-            print("Você não é tão bom assim afinal, mais sorte na próxima ;)")
-
     def user_guess(self):
-        guess = int(input(f"Você tem {self.attempts} chances\n"
-                          f"Chuta aí vai:\n"))
+        try:
+            guess = int(input(f"Você tem {self.attempts} chances\n"
+                              f"Tente um número de 1 a 100:\n"))
+        except ValueError:
+            guess = 0
+
         return guess
 
     def user_attempts(self):
         def invalid_value():
-            message = print("Essa opção é inválida, por isso a sau dificulda vai ser EXTREMA, boa sorte :)\n")
+            message = print("Essa opção é inválida, por isso a sua dificuldade vai ser EXTREMA, boa sorte :)\n")
             return message
 
         try:
@@ -58,24 +62,23 @@ class SecretNumber():
                              "\n(3) - Difícil\n"
                                "->"))
 
-            if difficulty == 1:
-                attempts = 18
+            if difficulty == 0:
+                difficulty = "error"
 
-            elif difficulty == 2:
-                attempts = 10
+            if difficulty == 1 or 2 or 3:
+                chances = [18, 10, 7]
+                attempts = chances[difficulty - 1]
 
-            elif difficulty == 3:
-                attempts = 7
-
-            else:
-                invalid_value()
-                attempts = 4
-
-        except ValueError:
+        except (ValueError, IndexError, TypeError):
                 invalid_value()
                 attempts = 4
 
         return attempts
 
-if (__name__ == "__main__"):
+    def game_over(self):
+        if self.attempts <= 1:
+            print(f"Você não é tão bom assim afinal, mais sorte na próxima ;)\n"
+                  f"Por sinal, o número secreto era: {self.secret_number}")
+
+if __name__ == "__main__":
     SecretNumber()
